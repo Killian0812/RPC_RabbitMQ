@@ -7,13 +7,13 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-public class RPCClientUI extends JFrame {
+public class RPCClientApp extends JFrame {
     private RPCClient rpcClient;
 
     private JTextArea outputTextArea;
     private JTextField inputTextField;
 
-    public RPCClientUI() {
+    public RPCClientApp() {
         super("RPC Client");
 
         try {
@@ -39,6 +39,9 @@ public class RPCClientUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(outputTextArea);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        // Name of queue
+        outputTextArea.append("[OK] Your queue: " + rpcClient.getReplyQueueName() + "\n"); 
+
         inputTextField = new JTextField(20);
         inputTextField.setFont(new Font("Arial", Font.PLAIN, 18));
         JButton sendButton = new JButton("Send");
@@ -48,12 +51,30 @@ public class RPCClientUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String input = inputTextField.getText().trim();
                 if (!input.isEmpty()) {
-                    try {
-                        String response = rpcClient.call(input);
-                        outputTextArea.append(" [.] Got '" + response + "'\n");
-                    } catch (IOException | InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                    String currentCorrId = rpcClient.newCorrId(); // Create new corrId
+                    outputTextArea.append("[.] Requesting RPC with id: " + currentCorrId + "\n");
+
+                    // Use SwingWorker for asynchronous RPC call
+                    SwingWorker<String, Void> worker = new SwingWorker<String, Void>() {
+                        @Override
+                        protected String doInBackground() throws Exception {
+                            return rpcClient.call(input);
+                        }
+
+                        @Override
+                        protected void done() {
+                            try {
+                                String response = get(); 
+                                // Display response to corresponding corrId
+                                outputTextArea.append("[OK] Response to " + currentCorrId + ": " + response + "\n");
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                outputTextArea.append("[ERROR] " + ex.getMessage() + "\n");
+                            }
+                        }
+                    };
+
+                    worker.execute();
                 }
             }
         });
@@ -69,7 +90,7 @@ public class RPCClientUI extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new RPCClientUI();
+                new RPCClientApp();
             }
         });
     }
