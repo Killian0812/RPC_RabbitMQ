@@ -24,7 +24,7 @@ public class RPCServerApp {
         frame.setSize(400, 200);
 
         JPanel panel = new JPanel(new BorderLayout());
-        messageArea = new JTextArea("[OK] Awaiting RPCs...\n");
+        messageArea = new JTextArea("[OK] Awaiting RPCs...\n\n");
         messageArea.setEditable(false); // Make the text area read-only
         messageArea.setFont(new Font("Arial", Font.PLAIN, 18)); // Set the font size 
         JScrollPane scrollPane = new JScrollPane(messageArea);

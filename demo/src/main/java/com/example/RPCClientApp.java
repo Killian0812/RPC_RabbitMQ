@@ -40,7 +40,7 @@ public class RPCClientApp extends JFrame {
         panel.add(scrollPane, BorderLayout.CENTER);
 
         // Name of queue
-        outputTextArea.append("[OK] Your queue: " + rpcClient.getReplyQueueName() + "\n"); 
+        outputTextArea.append("[OK] Your queue: " + rpcClient.getReplyQueueName() + "\n\n"); 
 
         inputTextField = new JTextField(20);
         inputTextField.setFont(new Font("Arial", Font.PLAIN, 18));
